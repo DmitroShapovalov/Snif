@@ -52,7 +52,7 @@ var config = {
 gulp.task('watch', function() {
     gulp.watch('public/index.html', ['html:build']);
     gulp.watch('public/stylesheets/*.css', ['css:build']);
-    gulp.watch('public/parts/*.*/*.js', ['js:build']);
+    gulp.watch('public/parts/*.js', ['js:build']);
     gulp.watch('public/images/*.*', ['img:build']);
 });
 
@@ -62,8 +62,8 @@ gulp.task('html:build', function() {
 });
 
 gulp.task('css:build', function(){
-    return gulp.src(path.src.css)
-        .pipe(gulp.dest(path.build.css))
+    gulp.src(path.src.style)
+        .pipe(gulp.dest(path.build.css));
 });
 
 gulp.task('js:build', function() {
@@ -78,4 +78,20 @@ gulp.task('img:build', function() {
 
 gulp.task('clean', function() {
     return del.sync('build');
+});
+
+gulp.task('build', ['clean', 'html:build', 'css:build', 'js:build', 'img:build'], function() {
+
+    var buildHtml = gulp.src([path.src.html])
+        .pipe(gulp.dest(path.build.html));
+
+    var buildCss = gulp.src([path.src.style])
+        .pipe(gulp.dest(path.build.css));
+
+    var buildJs = gulp.src([path.src.js])
+        .pipe(gulp.dest(path.build.js));
+
+    var buildImg = gulp.src([path.src.img])
+        .pipe(gulp.dest(path.build.img));
+
 });
