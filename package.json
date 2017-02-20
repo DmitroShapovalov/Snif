@@ -10,6 +10,7 @@
     "cookie-parser": "~1.4.3",
     "debug": "~2.2.0",
     "express": "~4.14.0",
+    "imagemin-pngquant": "^5.0.0",
     "jade": "~1.11.0",
     "mongodb": "^2.2.22",
     "mongoose": "^4.8.1",
@@ -19,7 +20,16 @@
   },
   "main": "app.js",
   "devDependencies": {
-    "gulp": "^3.9.1"
+    "browser-sync": "^2.18.8",
+    "del": "^2.2.2",
+    "gulp": "^3.9.1",
+    "gulp-autoprefixer": "^3.1.1",
+    "gulp-clean-css": "^3.0.3",
+    "gulp-imagemin": "^3.1.1",
+    "gulp-rigger": "^0.5.8",
+    "gulp-sass": "^3.1.0",
+    "gulp-uglify": "^2.0.1",
+    "gulp-watch": "^4.3.11"
   },
   "repository": {
     "type": "git",
