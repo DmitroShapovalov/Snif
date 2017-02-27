@@ -48,11 +48,11 @@ var UserModel = mongoose.model('User', User);
 firstArticle.save(function (err, firstArticle) {
     if (err) return log.error('write in db error:', err.message);
 });
-
+ */
 var firstUser = new UserModel({ name: "Dimon", password: "1234", rights: "admin", age: 30});
 firstUser.save(function (err) {
     if (err) return log.error('write in db error:', err.message);
-});*/
+});
 
 module.exports.ArticleModel = ArticleModel;
 module.exports.UserModel = UserModel;
