@@ -26,10 +26,12 @@
     "gulp-autoprefixer": "^3.1.1",
     "gulp-clean-css": "^3.0.3",
     "gulp-imagemin": "^3.1.1",
+    "gulp-plumber": "^1.1.0",
     "gulp-rigger": "^0.5.8",
     "gulp-sass": "^3.1.0",
     "gulp-uglify": "^2.0.1",
-    "gulp-watch": "^4.3.11"
+    "gulp-watch": "^4.3.11",
+    "gulp-wrap": "^0.13.0"
   },
   "repository": {
     "type": "git",

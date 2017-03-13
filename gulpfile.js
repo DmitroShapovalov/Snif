@@ -1,17 +1,14 @@
 var gulp = require('gulp'),
     watch = require('gulp-watch'),
-    prefixer = require('gulp-autoprefixer'),
     uglify = require('gulp-uglify'),
-    sass = require('gulp-sass'),
     sourcemaps = require('gulp-sourcemaps'),
-    rigger = require('gulp-rigger'),
-    cleanCSS = require('gulp-clean-css'),
     imagemin = require('gulp-imagemin'),
     pngquant = require('imagemin-pngquant'),
     rimraf = require('rimraf'),
+    concat = require('gulp-concat'),
+    plumber = require('gulp-plumber'),
+    wrap = require('gulp-wrap'),
     del = require('del');
-/*    browserSync = require("browser-sync"),
-    reload = browserSync.reload;*/
 
 
 var path = {
@@ -39,15 +36,7 @@ var path = {
     clean: './build'
 };
 
-var config = {
-    server: {
-        baseDir: "./build"
-    },
-    tunnel: true,
-    host: 'localhost',
-    port: 3000,
-    logPrefix: "Mi4a"
-};
+gulp.task('default', ['watch']);
 
 gulp.task('watch', function() {
     gulp.watch('public/index.html', ['html:build']);
@@ -55,6 +44,8 @@ gulp.task('watch', function() {
     gulp.watch('public/parts/*.js', ['js:build']);
     gulp.watch('public/images/*.*', ['img:build']);
 });
+
+const WRAP_TEMPLATE = '(function(){\n"use strict";\n<%= contents %>\n})();';
 
 gulp.task('html:build', function() {
     gulp.src(path.src.html)
@@ -68,7 +59,10 @@ gulp.task('css:build', function(){
 
 gulp.task('js:build', function() {
     gulp.src(path.src.js)
-        .pipe(gulp.dest(path.build.js));
+        .pipe(plumber())
+        .pipe(wrap(WRAP_TEMPLATE))
+        .pipe(concat('app.js'))
+        .pipe(gulp.dest(path.build.js))
 });
 
 gulp.task('img:build', function() {
@@ -82,16 +76,6 @@ gulp.task('clean', function() {
 
 gulp.task('build', ['clean', 'html:build', 'css:build', 'js:build', 'img:build'], function() {
 
-    var buildHtml = gulp.src([path.src.html])
-        .pipe(gulp.dest(path.build.html));
-
-    var buildCss = gulp.src([path.src.style])
-        .pipe(gulp.dest(path.build.css));
-
-    var buildJs = gulp.src([path.src.js])
-        .pipe(gulp.dest(path.build.js));
-
-    var buildImg = gulp.src([path.src.img])
-        .pipe(gulp.dest(path.build.img));
+    console.log('main project files created');
 
 });
