@@ -1,0 +1,16 @@
+<div class = "topic" ng-controller = "articleController as post">
+
+    <div class = "panel panel-default">
+        <div class = "panel-heading">
+            <h2>{{post.article.title}}</h2>
+        </div>
+        <div class = "panel-body">
+            <p>{{post.article.author}}</p>
+            <p>{{post.article.description}}</p>
+            <p>{{post.article.date | date}}</p>
+            <button ng-click = "deleteArticle(post.article._id)">Delete</button>
+            <button ng-click = "edit()">Edit</button>
+        </div>
+    </div>
+
+</div>

@@ -5,7 +5,7 @@ var log = require('../libs/log')(module);
 
 
 router
-    .get('/api/articles', function(req, res) {
+    .get('/', function(req, res) {
     return ArticleModel.find(function (err, articles) {
         if (!err) {
             console.log(articles);
@@ -17,14 +17,15 @@ router
         }
     });
 })
-    .get('/api/articles/:id', function(req, res) {
-        return ArticleModel.findById(req.params.id, function (err, article) {
+    .get('/:id', function(req, res) {
+        var id = req.params.id;
+        return ArticleModel.findById(id, function (err, article) {
             if(!article) {
                 res.statusCode = 404;
                 return res.send({ error: 'Not found' });
             }
             if (!err) {
-                return res.send({ status: 'OK', article:article });
+                return res.send({ status: 'OK', data:article });
             } else {
                 res.statusCode = 500;
                 log.error('Internal error(%d): %s',res.statusCode,err.message);
@@ -32,7 +33,7 @@ router
             }
         });
     })
-    .post('/api/articles', function(req, res) {
+    .post('/', function(req, res) {
         var article = new ArticleModel({
             title: req.body.title,
             author: req.body.author,
@@ -43,7 +44,7 @@ router
             if (err) return log.error('write in db error:', err.message);
         });
     })
-    .put('/api/articles/:id', function (req, res){
+    .put('/:id', function (req, res){
         return ArticleModel.findById(req.params.id, function (err, article) {
             if(!article) {
                 res.statusCode = 404;
@@ -71,8 +72,9 @@ router
         });
     })
 
-    .delete('/api/articles/:id', function (req, res){
-        return ArticleModel.findById(req.params.id, function (err, article) {
+    .delete('/:id', function (req, res){
+        var id = req.params.id;
+        return ArticleModel.findById(id, function (err, article) {
             if(!article) {
                 res.statusCode = 404;
                 return res.send({ error: 'Not found' });
