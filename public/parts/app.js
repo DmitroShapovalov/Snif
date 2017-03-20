@@ -4,7 +4,7 @@
         $routeProvider
             .when('/', {
             templateUrl: './parts/topic/topic-index.html',
-            controller: "firstController"
+            controller: "artListController"
         })
             .when('/api/articles/:id', {
                     templateUrl: './parts/article/article-open.html',
@@ -12,9 +12,15 @@
                 }
 
             )
+            .when('/new', {
+                templateUrl: './parts/newarticle/new-article.html',
+                controller: "newArtController"
+                }
+
+            )
     });
 
-    app.controller("firstController", function ($scope, $http, $location) {
+    app.controller("artListController", function ($scope, $http, $location) {
         var that = this;
         $http.get('/api/articles')
             .then(function success(responce) {
@@ -28,6 +34,9 @@
             console.log(artId);
             var artPath = "/api/articles/" + artId;
             $location.path(artPath);
+        };
+        $scope.createNewArt = function () {
+            $location.path("/new");
         }
     });
 
@@ -46,22 +55,39 @@
             $http.delete(id)
                 .then(function success(responce) {
                     $location.path('/');
-                    alert('Post with id:' + id + "removed!");
+                    alert('Post with id:' + id + " removed!");
                 });
             }
         }
 
     );
 
+    app.controller("newArtController", function ($scope, $http, $location) {
+        $scope.createNewArticle = function () {
+            var data = $.param({
+                title: $scope.title,
+                author: "Me",
+                description: $scope.description
+            });
 
-    /*    var simpleDelete = function ($http) {
+            var config = {
+                headers : {
+                    'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
+                }
+            };
+            $http.post('/', data, config)
+                .then(function success () {
+                        console.log('article add');
+                        $location.path("/");
+                    },
+                function error (data, status, header, config) {
+                    $scope.ResponseDetails = "Data: " + data +
+                        "<hr />status: " + status +
+                        "<hr />headers: " + header +
+                        "<hr />config: " + config;
+                    console.log($scope.ResponseDetails)
+                });
+        }
+    });
 
-     var that = this;
-
-     $http.delete('/api/articles:id')
-     .then(function (responce) {
-     that.post = [];
-     that.post = responce.data;
-     console.log(that.post);
-     })
-     };*/
+    

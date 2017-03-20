@@ -1,5 +1,5 @@
-<div class = "topic" ng-controller = "firstController as topic">
-
+<div class = "topic" ng-controller = "artListController as topic">
+    <button type="button" class = "btn btn-primary" ng-click = "createNewArt()">Add topic</button>
     <ul class = "list-group">
         <li ng-repeat = "article in topic.post" class="list-group-item">
             <div class = "panel panel-default">

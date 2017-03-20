@@ -3,12 +3,10 @@ var router = express.Router();
 var ArticleModel = require('../libs/mongoose').ArticleModel;
 var log = require('../libs/log')(module);
 
-
 router
     .get('/', function(req, res) {
     return ArticleModel.find(function (err, articles) {
         if (!err) {
-            console.log(articles);
             return res.json(articles);
         } else {
             res.statusCode = 500;
@@ -41,7 +39,13 @@ router
             images: req.body.images
         });
         article.save(function (err) {
-            if (err) return log.error('write in db error:', err.message);
+            if (err)
+            {
+                return log.error('write in db error:', err.message);
+            }
+            else {
+                return res.send('Ok')
+            }
         });
     })
     .put('/:id', function (req, res){
