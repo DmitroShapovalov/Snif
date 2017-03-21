@@ -2,11 +2,11 @@
     <p>You can write all your information here</p>
     <div class="form-group">
         <label for="usr">Title:</label>
-        <input type="text" class="form-control" id="usr" placeholder="Your title" ng-model="title">
+        <input type="text" class="form-control" id="usr" placeholder="Your title" ng-model="newart.title">
     </div>
     <div class="form-group">
         <label for="comment">Description:</label>
-        <textarea class="form-control" rows="5" id="comment" placeholder="Your comment" ng-model="description"></textarea>
+        <textarea class="form-control" rows="5" id="comment" placeholder="Your comment" ng-model="newart.description"></textarea>
     </div>
     <button class = "btn btn-success" ng-click="createNewArticle()">Create new Article</button>
 </div>

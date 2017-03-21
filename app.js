@@ -22,6 +22,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 app.use('/', index);
+app.use('/new', index);
 app.use('/api/articles', index);
 app.use('/api/users', users);
 

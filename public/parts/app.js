@@ -16,8 +16,11 @@
                 templateUrl: './parts/newarticle/new-article.html',
                 controller: "newArtController"
                 }
-
             )
+            .when('/new/:id', {
+                templateUrl: './parts/newarticle/new-article.html',
+                controller: "newArtController"
+            })
     });
 
     app.controller("artListController", function ($scope, $http, $location) {
@@ -57,12 +60,25 @@
                     $location.path('/');
                     alert('Post with id:' + id + " removed!");
                 });
+            };
+            $scope.editArticle = function (id) {
+
+                $location.path('/new/' + id);
             }
         }
 
     );
 
     app.controller("newArtController", function ($scope, $http, $location) {
+        var url = $location.url();
+        var that = this;
+        $http.get(url)
+            .then(function success(responce) {
+                that.title = responce.data.data.title;
+                that.description = responce.data.data.description;
+            }, function error(responce) {
+                console.log(responce.message);
+            });
         $scope.createNewArticle = function () {
             var data = $.param({
                 title: $scope.title,
@@ -91,3 +107,17 @@
     });
 
     
+/*
+app.factory("workWithArticle", function ($http, $location) {
+    return {
+        getArticle: function () {
+            var url = $location.url();
+            $http.get(url)
+                .then(function success(responce) {
+                return responce.data.data;
+            }, function error(responce) {
+                return responce.message;
+            });
+        }
+    }
+});*/
