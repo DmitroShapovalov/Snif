@@ -1,16 +1,23 @@
 <div class = "topic" ng-controller = "articleController as post">
     <home-button></home-button>
-    <div class = "panel panel-default">
-        <div class = "panel-heading">
-            <h2>{{post.article.title}}</h2>
+        <div class = "panel panel-default">
+            <div class = "panel-heading">
+                <h2>{{post.article.title}}</h2>
+            </div>
+            <div  class = "panel-body">
+                <div class = "row">
+                    <p class = "col-md-2">{{post.article.author}}</p>
+                    <p class = "col-md-8">{{post.article.description}}</p>
+                    <p class = "col-md-2">{{post.article.modified | date}}</p>
+                </div>
+                <img width="80%" class="col-md-2" ng-src={{post.article.imageUrl[0]}} alt={{post.article.imageType[0]}}>
+                <img width="80%" class="col-md-2" ng-src={{post.article.imageUrl[1]}} alt={{post.article.imageType[1]}}>
+                <img width="80%" class="col-md-2" ng-src={{post.article.imageUrl[2]}} alt={{post.article.imageType[2]}}>
+                <img width="80%" class="col-md-2" ng-src={{post.article.imageUrl[3]}} alt={{post.article.imageType[3]}}>
+                <img width="80%" class="col-md-2" ng-src={{post.article.imageUrl[4]}} alt={{post.article.imageType[4]}}>
+            </div>
         </div>
-        <div class = "panel-body">
-            <p>{{post.article.author}}</p>
-            <p>{{post.article.description}}</p>
-            <p>{{post.article.date | date}}</p>
-            <button ng-click = "deleteArticle(post.article._id)">Delete</button>
-            <button ng-click = "editArticle(post.article._id)">Edit</button>
-        </div>
+            <button ng-if="isAuthor" ng-click = "deleteArticle(post.article._id)">Delete</button>
+            <button ng-if="isAuthor" ng-click = "editArticle(post.article._id)">Edit</button>
     </div>
 
-</div>

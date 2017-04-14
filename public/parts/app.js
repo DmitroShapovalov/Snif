@@ -16,9 +16,9 @@
                 controller: "newArtController"
                 }
             )
-            .when('/new/:id', {
-                templateUrl: './parts/newarticle/new-article.html',
-                controller: "newArtController"
+            .when('/edit/:id', {
+                templateUrl: './parts/article/edit-article.html',
+                controller: "editArtController"
             })
             .when('/login', {
                 templateUrl: './parts/authentication/authentication-form.html',
@@ -35,13 +35,13 @@
 
     app.run(function ($rootScope) {
         $rootScope.isLogin = false;
+/*        $rootScope.userName = "";*/
     });
 
     app.controller("artListController", function ($scope, $http, $location, $rootScope) {
         var that = this;
         $http.get('/api/articles')
             .then(function success(responce) {
-                console.log(responce);
                 that.post = [];
                 that.post = responce.data;
             }, function error() {
@@ -71,18 +71,23 @@
         }
     });
 
-    app.controller("articleController", function ($scope, $http, $location) {
-        var art = this;
-        art.article = {};
+    app.controller("articleController", function ($scope, $http, $rootScope, $location, $cookieStore) {
+        $scope.isAuthor = false;
+        let art = this;
         var artUrl = $location.url();
         $http.get(artUrl)
             .then(function success(responce) {
                 art.article = responce.data.data;
-                console.log(art.article);
+                art.author = responce.data.data.author;
+                var name = $cookieStore.get('name');
+                console.log(art.author);
+                console.log(name);
+                if(name == art.author){$scope.isAuthor = true;}
             }, function error(responce) {
                 console.log(responce.message);
             });
-        $scope.deleteArticle = function (id) {
+
+            $scope.deleteArticle = function (id) {
             $http.delete(id)
                 .then(function success(responce) {
                     $location.path('/');
@@ -91,27 +96,41 @@
             };
             $scope.editArticle = function (id) {
 
-                $location.path('/new/' + id);
+                $location.path('/edit/' + id);
             }
         }
 
     );
 
-    app.controller("newArtController", function ($scope, multipartForm, $rootScope) {
-        var name = $rootScope.userName;
+    app.controller("editArtController", function ($scope, multipartForm, $cookieStore , $location) {
+        let name = $cookieStore.get('name');
+        let artUrl = $location.url();
+        console.log(artUrl);
+        $scope.article = {};
+        $scope.article.author = name;
+        $scope.Submit = function() {
+            multipartForm.newpost(artUrl, $scope.article);
+            alert('Thank you for your post');
+            $location.path('/');
+        }
+    });
+
+    app.controller("newArtController", function ($scope, multipartForm, $rootScope, $location) {
+        let name = $rootScope.userName;
         $scope.article = {};
         $scope.article.author = name;
         $scope.Submit = function() {
             var uploadUrl = '/new';
             multipartForm.newpost(uploadUrl, $scope.article);
+            alert('Thank you for your post');
+            $location.path('/');
         }
-
     });
 
     app.service('multipartForm', ['$http', function($http){
         this.newpost = function(uploadUrl, data){
             var fd = new FormData();
-            for(var key in data){fd.append(key, data[key])}
+            for(let key in data){fd.append(key, data[key])}
             $http.post(uploadUrl, fd, {
                 transformRequest: angular.identity,
                 headers: { 'Content-Type': undefined }
@@ -145,6 +164,7 @@
                         $rootScope.isLogin = true;
                         $scope.dataLoading = false;
                         $location.path('/');
+                        console.log($rootScope.userName);
                     } else {
                         $scope.dataLoading = false;
                         alert ('Some error happened! Try enter login/password one more time!')

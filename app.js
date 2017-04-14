@@ -25,10 +25,11 @@ app.use(express.static('node_modules'));
 
 
 app.use('/', index);
+app.use('/users', users);
 app.use('/new', index);
 app.use('/api/articles', index);
 app.use('/public',index);
-app.use('/users', users);
+
 
 
 app.use(function(req, res, next) {

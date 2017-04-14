@@ -29,7 +29,7 @@ router
                 console.log(user);
                 return function (user) {
                     res.cookie('user', user.token);
-                    res.cookie('name', user.name);
+                    res.cookie('name', JSON.stringify(user.name));
                     res.send({ status: 'OK!', name: user.name})
                 }(user);
             } else {

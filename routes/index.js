@@ -72,8 +72,6 @@ router
     })
 
     .post('/', upload.any(), function(req, res) {
-            console.log(req.files);
-            console.log(req.body);
         var article = new ArticleModel({
             title: req.body.title,
             author: req.body.author,
@@ -129,6 +127,83 @@ router
         });
     })
 
+    .post('/edit/:id', upload.any(), function(req, res) {
+        return ArticleModel.findById(req.params.id, function (err, article) {
+            if(!article) {
+                res.statusCode = 404;
+                return res.send({ error: 'Not found' });
+            }
+            console.log('_________________EDIT START________________________');
+            let oldImg = article.imageUrl;
+            let oldSmall = article.imageSmall;
+
+            for (let i = 0; i < oldSmall.length; i++) {
+                fs.unlinkSync(oldSmall[i], function (err) {
+                    if (err) throw err;
+                    console.log("file " + oldSmall[i] + " deleted");
+                });
+            }
+
+            for (let i = 0; i < oldImg.length; i++) {
+                fs.unlinkSync(oldImg[i], function (err) {
+                    if (err) throw err;
+                    console.log("file " + oldImg[i] + " deleted");
+                });
+            }
+            article.title = req.body.title;
+            article.author = req.body.author;
+            article.description = req.body.description;
+            article.price = 10;
+            article.imageUrl = [];
+            article.imageType = [];
+            article.imageSmall = [];
+
+        for (let i = 0; i < req.files.length; i++){
+            let oldPath = './uploads/' + req.files[i].filename;
+            let newPath = './public/images/' + req.files[i].filename + '.' + req.files[i].mimetype.split('/')[1];
+            let smallPath = './public/images/small/' + req.files[i].filename + '.' + req.files[i].mimetype.split('/')[1];
+            console.log(oldPath);
+            console.log(newPath);
+            console.log(smallPath);
+            fs.renameSync( oldPath , newPath, function (err) {
+                if ( err ) console.log('ERROR: ' + err);
+            });
+                let options = {
+                    srcPath: newPath,
+                    srcData: null,
+                    srcFormat: null,
+                    dstPath: smallPath,
+                    quality: 0.8,
+                    format: 'jpg',
+                    progressive: false,
+                    width: 180,
+                    height: 180,
+                    strip: true,
+                    filter: 'Lagrange',
+                    sharpening: 0.2,
+                    customArgs: []
+                };
+                im.resize(options, function(err, stdout, stderr){
+                    if (err) throw err;
+                    console.log('resized' + smallPath + ' to fit within 256x256px');
+                });
+
+            article.imageUrl.push(newPath);
+            article.imageType.push(req.files[i].mimetype);
+            article.imageSmall.push(smallPath);
+        }
+        article.save(function (err) {
+                if (err)
+                {
+                    return log.error('write in db error:', err.message);
+                }
+                else {
+                    return res.send('Ok')
+                }
+            });
+        });
+    })
+
     .put('/:id', function (req, res){
         return ArticleModel.findById(req.params.id, function (err, article) {
             if(!article) {
@@ -164,10 +239,20 @@ router
                 res.statusCode = 404;
                 return res.send({ error: 'Not found' });
             }
-/*            fs.unlinkSync( article.imageSmall , function (err) {
-                if (err) throw err;
-                console.log("file deleted");
-            });*/
+
+            for (let i = 0; i < article.imageSmall.length; i++) {
+                fs.unlinkSync(article.imageSmall[i], function (err) {
+                    if (err) throw err;
+                    console.log("file " + article.imageSmall[i] + " deleted");
+                });
+            }
+
+            for (let i = 0; i < article.imageUrl.length; i++) {
+                fs.unlinkSync(article.imageUrl[i], function (err) {
+                    if (err) throw err;
+                    console.log("file " + article.imageUrl[i] + " deleted");
+                });
+            }
 
             return article.remove(function (err) {
                 if (!err) {
