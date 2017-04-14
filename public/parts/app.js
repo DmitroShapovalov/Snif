@@ -1,4 +1,4 @@
-    var app = angular.module('app',['ngRoute']);
+    var app = angular.module('app',['ngRoute', 'ngCookies']);
 
     app.config(function($routeProvider){
         $routeProvider
@@ -10,7 +10,6 @@
                     templateUrl: './parts/article/article-open.html',
                     controller: "articleController"
                 }
-
             )
             .when('/new', {
                 templateUrl: './parts/newarticle/new-article.html',
@@ -21,25 +20,54 @@
                 templateUrl: './parts/newarticle/new-article.html',
                 controller: "newArtController"
             })
+            .when('/login', {
+                templateUrl: './parts/authentication/authentication-form.html',
+                controller: "loginController",
+                controllerAs: "log"
+            })
+            .when('/registration', {
+                templateUrl: './parts/registration/registration-form.html',
+                controller: "registrationController",
+                controllerAs: "reg"
+            })
+            .otherwise({ redirectTo: '/' });
     });
 
-    app.controller("artListController", function ($scope, $http, $location) {
+    app.run(function ($rootScope) {
+        $rootScope.isLogin = false;
+    });
+
+    app.controller("artListController", function ($scope, $http, $location, $rootScope) {
         var that = this;
         $http.get('/api/articles')
             .then(function success(responce) {
+                console.log(responce);
                 that.post = [];
                 that.post = responce.data;
-                console.log(that.post);
-            }, function error(responce) {
+            }, function error() {
                 console.log("Shit heppens");
             });
         $scope.openArticle = function (artId) {
-            console.log(artId);
             var artPath = "/api/articles/" + artId;
+
             $location.path(artPath);
         };
         $scope.createNewArt = function () {
+            if ($rootScope.isLogin){
             $location.path("/new");
+            } else { $location.path("/login") }
+        };
+        this.findText = '';
+        $scope.find = function () {
+            var text = that.findText;
+            $http.get('/find/' + text)
+                .then(function success(responce) {
+                    console.log(responce);
+                    that.post = [];
+                    that.post = responce.data.data;
+                }, function error() {
+                    console.log("Shit heppens");
+                });
         }
     });
 
@@ -69,55 +97,167 @@
 
     );
 
-    app.controller("newArtController", function ($scope, $http, $location) {
-        var url = $location.url();
-        var that = this;
-        $http.get(url)
-            .then(function success(responce) {
-                that.title = responce.data.data.title;
-                that.description = responce.data.data.description;
-            }, function error(responce) {
-                console.log(responce.message);
+    app.controller("newArtController", function ($scope, multipartForm, $rootScope) {
+        var name = $rootScope.userName;
+        $scope.article = {};
+        $scope.article.author = name;
+        $scope.Submit = function() {
+            var uploadUrl = '/new';
+            multipartForm.newpost(uploadUrl, $scope.article);
+        }
+
+    });
+
+    app.service('multipartForm', ['$http', function($http){
+        this.newpost = function(uploadUrl, data){
+            var fd = new FormData();
+            for(var key in data){fd.append(key, data[key])}
+            $http.post(uploadUrl, fd, {
+                transformRequest: angular.identity,
+                headers: { 'Content-Type': undefined }
             });
-        $scope.createNewArticle = function () {
+        }
+    }]);
+
+    app.controller("loginController", function ($scope, $http, $rootScope, $location) {
+        $scope.username = "";
+        $scope.password = "";
+        $scope.dataLoading = false;
+
+        this.login = function () {
+
             var data = $.param({
-                title: $scope.title,
-                author: "Me",
-                description: $scope.description
+                name: $scope.username,
+                password: $scope.password
             });
 
             var config = {
-                headers : {
+                headers: {
                     'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
                 }
             };
-            $http.post('/', data, config)
-                .then(function success () {
-                        console.log('article add');
-                        $location.path("/");
-                    },
-                function error (data, status, header, config) {
-                    $scope.ResponseDetails = "Data: " + data +
-                        "<hr />status: " + status +
-                        "<hr />headers: " + header +
-                        "<hr />config: " + config;
-                    console.log($scope.ResponseDetails)
+            $scope.dataLoading = true;
+
+            $http.post('/users', data, config)
+                .then(function success(user) {
+                    if (data !==[]) {
+                        $rootScope.userName = user.data.name;
+                        $rootScope.isLogin = true;
+                        $scope.dataLoading = false;
+                        $location.path('/');
+                    } else {
+                        $scope.dataLoading = false;
+                        alert ('Some error happened! Try enter login/password one more time!')
+                    }
+                },
+                function error(error) {
+                    console.log(error);
+                    $scope.dataLoading = false;
+                    alert ( "Invalid login/password! Please try again!")
                 });
         }
     });
 
-    
-/*
-app.factory("workWithArticle", function ($http, $location) {
-    return {
-        getArticle: function () {
-            var url = $location.url();
-            $http.get(url)
-                .then(function success(responce) {
-                return responce.data.data;
-            }, function error(responce) {
-                return responce.message;
-            });
+    app.controller("registrationController", function ($scope, $http, $location) {
+        $scope.username = "";
+        $scope.password = "";
+        $scope.checkPassword = "";
+        $scope.dataLoading = false;
+        $scope.register = function () {
+
+            if ($scope.password == $scope.checkPassword){
+                var data = $.param({
+                    name: $scope.username,
+                    password: $scope.password
+                });
+                var config = {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
+                    }
+                };
+                $scope.dataLoading = true;
+                $http.post('/users/reg', data, config)
+                    .then(function success() {
+                        $scope.dataLoading = false;
+                        alert ('Thank you for registration!');
+                        $location.path("/");
+                    }, function error(data) {
+                        $scope.dataLoading = false;
+                        console.log(data.statusText);
+                    })} else {
+                alert ('Passwords don`t match. Try enter it one more time!');
+                $scope.dataLoading = false;
+            }
+        };
+    });
+
+    app.directive("loginForm", function() {
+        return {
+            restrict : 'E',
+            templateUrl : './parts/authentication/login-button.html',
+            controller: 'loginPathController'
+        };
+    });
+
+    app.controller('loginPathController', function ($scope, $location) {
+        $scope.login = function () {
+            $location.path('/login')
         }
-    }
-});*/
+    });
+
+    app.directive("registrationForm", function() {
+        return {
+            restrict : 'E',
+            templateUrl : './parts/registration/registration-button.html',
+            controller: 'regController'
+        };
+    });
+
+    app.controller('regController', function ($scope, $location) {
+        $scope.registration = function () {
+            $location.path('/registration')
+        }
+    });
+
+    app.directive("homeButton", function() {
+        return {
+            restrict : 'E',
+            templateUrl : './parts/topic/home-button.html',
+            controller: 'homeController'
+        };
+    });
+
+    app.controller('homeController', function ($scope, $location) {
+        $scope.home = function () {
+            $location.path('/')
+        }
+    });
+
+    app.directive('hiUser', function () {
+        return {
+            restrict: 'E',
+            templateUrl: './parts/topic/hi-user.html',
+            controller: 'hiController'
+        }
+    });
+    
+    app.controller('hiController', function ($scope, $rootScope) {
+        $scope.userName = $rootScope.userName || 'dear guest'
+    });
+
+    app.directive('fileModel', ['$parse', function($parse){
+        return {
+            restrict: 'A',
+            link: function(scope, element, attrs){
+                var model = $parse(attrs.fileModel);
+                var modelSetter = model.assign;
+
+                element.bind('change', function(){
+                    scope.$apply(function(){
+                        modelSetter(scope, element[0].files[0]);
+                    })
+                })
+            }
+        }
+    }]);
+
