@@ -39,26 +39,29 @@ router
         })
     })
     .post('/reg', function(req, res) {
-        console.log("put catched");
+
         var newHash = md5(req.body.name + req.body.password + 'snif');
-        console.log(newHash);
+        var newToken = md5(req.body.name + 'token');
+
         var user = new UserModel({
             name: req.body.name,
             password: req.body.password,
             hash: newHash
         });
-    user.save(function (err) {
-        if (err)
-            {
-                return res.send('/reg', {
-                    errors: err.errors,
-                    user: user
-                });
+
+        UserModel.findOneAndUpdate({name: req.body.name, password: req.body.password, hash:  newHash}, {$set: {token: newToken} }, { new: true, $maxTimeMS: 100, upsert: true }).exec(function(err, user){
+            if (user){
+                console.log(user);
+                return function (user) {
+                    res.cookie('user', user.token);
+                    res.cookie('name', JSON.stringify(user.name));
+                    res.send({ status: 'OK!', name: user.name})
+                }(user);
+            } else {
+                res.statusCode = 500;
+                return res.send({ error: 'Server Error' });
             }
-        else {
-            return res.send('Ok')
-            }
-        });
+        })
     });
 
 

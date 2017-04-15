@@ -8,16 +8,16 @@
     <div class = "row">
         <div class="col-lg-6">
             <div class="input-group">
-      <span class="input-group-btn">
-        <button class="btn btn-secondary" type="button" ng-click="find()">Go!</button>
-      </span>
-                <input type="text" class="form-control" placeholder="Search for..." ng-model="topic.findText">
+                <input  style="margin: 10px" type="text" class="form-control" placeholder="Search for..." ng-model="topic.findText">
+                <span class="input-group-btn">
+                 <button  style="margin: 10px" class="btn btn-secondary" type="button" ng-click="find()">Go!</button>
+                </span>
             </div>
         </div>
     </div>
     <ul class = "list-group">
         <li ng-repeat = "article in topic.post" class="list-group-item">
-            <div class = "panel panel-default">
+            <div class = "panel panel-default" style="margin: auto">
                 <div class = "panel-heading">
                     <h2>{{article.title}}</h2>
                 </div>
@@ -27,14 +27,14 @@
                     <p class = "col-md-8">{{article.description}}</p>
                     <p class = "col-md-2">{{article.modified | date}}</p>
                     </div>
-                    <div class = "row">
+                    <div class = "row" style="margin: 10px">
                     <img class="col-md-2" ng-src={{article.imageSmall[0]}} alt={{article.imageType[0]}}>
                         <img class="col-md-2" ng-src={{article.imageSmall[1]}} alt={{article.imageType[1]}}>
                         <img class="col-md-2" ng-src={{article.imageSmall[2]}} alt={{article.imageType[2]}}>
                         <img class="col-md-2" ng-src={{article.imageSmall[3]}} alt={{article.imageType[3]}}>
                         <img class="col-md-2" ng-src={{article.imageSmall[4]}} alt={{article.imageType[4]}}>
                     </div>
-                    <button ng-click="openArticle(article._id)">Look</button>
+                    <button class="btn btn-success" ng-click="openArticle(article._id)">Look</button>
 
                 </div>
             </div>
