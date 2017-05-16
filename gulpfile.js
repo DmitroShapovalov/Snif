@@ -14,7 +14,7 @@ var gulp = require('gulp'),
 var path = {
     build: {
         html: 'build/',
-        js: 'build/js/',
+        js: 'public/',
         css: 'build/css/',
         img: 'build/img/',
         fonts: 'build/fonts/'
@@ -60,9 +60,8 @@ gulp.task('css:build', function(){
 gulp.task('js:build', function() {
     gulp.src(path.src.js)
         .pipe(plumber())
-        .pipe(wrap(WRAP_TEMPLATE))
         .pipe(concat('app.js'))
-        .pipe(gulp.dest(path.build.js))
+        .pipe(gulp.dest(path.build.js));1
 });
 
 gulp.task('img:build', function() {
